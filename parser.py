@@ -2,7 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from datetime import datetime
-import threading
 import time
 import itertools
 domain = "https://t.me/addstickers/"
@@ -78,7 +77,7 @@ def run_per_word_bruteforce():
 
 
 if __name__ == '__main__':
-    logs = open('D:\\test\\tg_stickers_brute_force\\logs.txt', 'w', encoding='utf-8')
+    logs = open('D:\\test\\tg_stickers_brute_force\\logs.log', 'w', encoding='utf-8')
     logs.write("====LOG BEGIN====\n")
     run_per_word_bruteforce()
     logs.close()
