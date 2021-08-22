@@ -16,7 +16,12 @@ def _log(text):
     with open('D:\\test\\tg_stickers_brute_force\\logs.log', 'a', encoding='utf-8') as l:
         l.write("[{}] {}\n".format(datetime.now(), text))
 
-def check_if_exists(response):
+def _chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
+
+def check_if_exists(response) -> str | False:
     try:
 
         stick = BeautifulSoup(response, 'lxml').find('div', class_="tgme_page_description")
@@ -44,14 +49,16 @@ async def run_async_per_word_bruteforce():
             else:
                 urls.append(domain + word * (5//len(word) + 1))
     _log(f"Urls prepared, length: {len(urls)}, removed {len(word_list)-len(urls)} words")
-    _log(f"Running async code!")
-    async with httpx.AsyncClient() as client:
-        tasks = (client.get(url) for url in urls)
-        reqs = await asyncio.gather(*tasks)
-    _log(f"Finished, checking if sticker packs exist, results:")
-    for req in reqs:
-        if check := check_if_exists(req.text):
-            _log(f"Found sticker set #{counter}, \"{check}\" with the link of {req.url}")
+    chunked_list = list(_chunks(urls, 100))
+    
+    _log(f"chunked list created, running async code for each!")
+    for link_chunk in chunked_list:
+        async with httpx.AsyncClient() as client:
+            tasks = (client.get(url) for url in link_chunk)
+            reqs = await asyncio.gather(*tasks)
+        for req in reqs:
+            if check := check_if_exists(req.text):
+                _log(f"Found sticker set #{counter}, \"{check}\" with the link of {req.url}")
 
 
     
